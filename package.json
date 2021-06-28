@@ -1,0 +1,23 @@
+{
+    "name": "ysc-api",
+    "version": "1.0.0",
+    "description": "Your Stupid Confessions - API",
+    "main": "index.js",
+    "scripts": {
+      "start": "nodemon server.js"
+    },
+    "author": "Hosein Behkamal",
+    "license": "MIT License",
+    "dependencies": {
+      "bcrypt": "^5.0.1",
+      "body-parser": "^1.18.2",
+      "electron-window-state": "^4.1.1",
+      "express": "^4.16.2",
+      "express-validator": "^4.3.0",
+      "jsonwebtoken": "^8.5.1",
+      "mongoose": "^4.13.6",
+      "mongoose-timestamp": "^0.6.0",
+      "nodemon": "^2.0.7"
+    }
+  }
+  
