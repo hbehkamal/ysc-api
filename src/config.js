@@ -6,11 +6,10 @@ module.exports = {
   secret: process.env.SECRET_KEY,
   path: {
     controllers: {
-      api: path.resolve("./modules/controllers/api"),
-      web: path.resolve("./modules/controllers/web"),
+      api: path.resolve("./src/controllers/api"),
     },
-    model: path.resolve("./modules/models"),
-    transform: path.resolve("./modules/transforms"),
-    controller: path.resolve("./modules/controllers"),
+    model: path.resolve("./src/models"),
+    transform: path.resolve("./src/transforms"),
+    controller: path.resolve("./src/controllers"),
   },
 };
