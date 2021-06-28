@@ -17,7 +17,6 @@ const UserSchema = new Schema({
   confessions: [{ type: Schema.Types.ObjectId, ref: "Confession" }],
   likes: [{ type: Schema.Types.ObjectId, ref: "Like" }],
   shares: [{ type: Schema.Types.ObjectId, ref: "Share" }],
-  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
 });
 UserSchema.plugin(timestamps);
 
