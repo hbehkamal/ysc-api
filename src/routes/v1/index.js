@@ -8,6 +8,7 @@ router.get("/", (req, res) => {
   res.json("Welcome to YSC api homepage");
 });
 
+router.post('/login' , AuthController.login.bind(AuthController));
 router.post("/register", AuthController.register.bind(AuthController));
 router.get("/users", UserController.index.bind(UserController));
 
