@@ -4,16 +4,18 @@ const bcrypt = require("bcrypt");
 
 module.exports = new (class CourseController extends Controller {
   register(req, res) {
+    const { name, email, password, mobile, username, role } = req.body;
     req.checkBody("name", "وارد کردن فیلد نام الزامیست").notEmpty();
-    req.checkBody("email", "وارد کردن فیلد ایمیل الزامیست").notEmpty();
     req.checkBody("password", "وارد کردن فیلد پسورد الزامیست").notEmpty();
-    req.checkBody("email", "فرمت اییمل وارد شده صحیح نیست").isEmail();
     req.checkBody("mobile", "وارد کردن فیلد موبایل الزامیست").notEmpty();
     req.checkBody("username", "وارد کردن نام کاربری الزامیست").notEmpty();
 
+    if (email) {
+      req.checkBody("email", "فرمت اییمل وارد شده صحیح نیست").isEmail();
+    }
+
     if (this.showValidationErrors(req, res)) return;
 
-    const { name, email, password, mobile, username, role } = req.body;
     this.model
       .User({
         name,
@@ -23,7 +25,7 @@ module.exports = new (class CourseController extends Controller {
         username,
         role,
       })
-      .save((err) => {
+      .save((err, user) => {
         if (err) {
           if (err.code == 11000) {
             return res.json({
@@ -34,11 +36,13 @@ module.exports = new (class CourseController extends Controller {
             throw err;
           }
         }
-
-        return res.json({
-          data: "کاربر با موفقیت عضو وبسایت شد",
-          success: true,
-        });
+        if (user) {
+          return res.json({
+            message: "کاربر با موفقیت عضو وبسایت شد",
+            data: new UserTransform().transform(user._doc, true),
+            success: true,
+          });
+        }
       });
   }
 
