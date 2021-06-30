@@ -11,4 +11,22 @@ module.exports = new (class UserController extends Controller {
       return res.json("No user found");
     });
   }
+
+  get(req, res) {
+    const { id } = req.params;
+    if (!id) {
+      res.json({
+        status: false,
+        message: "please send user id",
+      });
+    }
+    this.model.findOne({ _id: id }, (err, user) => {
+      if (err) throw err;
+      res.json(user);
+    });
+  }
+
+  getUsers(req, res) {
+      this.model.find
+  }
 })();
