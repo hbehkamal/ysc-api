@@ -14,5 +14,6 @@ router.post('/login' , AuthController.login.bind(AuthController));
 router.post("/register", AuthController.register.bind(AuthController));
 router.get("/users", auth, UserController.index.bind(UserController));
 router.get("/user/:id", auth, UserController.get.bind(UserController));
+router.patch("/user/:id", auth, UserController.put.bind(UserController));
 
 module.exports = router;

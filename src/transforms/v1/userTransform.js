@@ -2,14 +2,16 @@ const Transform = require("../transform");
 const jwt = require("jsonwebtoken");
 
 module.exports = class UserTransform extends Transform {
+  
   transform(item, createToken = false) {
     this.createToken = createToken;
-    const { name, email, mobile, role } = item;
+    const { name, email, mobile, role, _id } = item;
     return {
       name,
       email,
       mobile,
       role,
+      userId: _id,
       ...this.withToken(item),
     };
   }

@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require(`${config.path.model}/user`);
 
 module.exports = (req, res, next) => {
-  let token = req.headers["Authorization"].slice(7);
+  let token = req.headers["authorization"].slice(7);
 
   if (token) {
     return jwt.verify(token, config.secret, (err, decode) => {
