@@ -1,64 +1,43 @@
-const { json } = require("body-parser");
+const httpStatus = require("http-status");
+const pick = require("../../utils/pick");
+const ApiError = require("../../utils/ApiError");
+const catchAsync = require("../../utils/catchAsync");
+const userService = require("./user.service");
 
-const Controller = require(`${config.path.controller}/controller`);
-const UserTransform = require(`${config.path.transform}/v1/userTransform`);
+const createUser = catchAsync(async (req, res) => {
+  const user = await userService.createUser(req.body);
+  res.status(httpStatus.CREATED).send(user);
+});
 
-module.exports = new (class UserController extends Controller {
-  index(req, res) {
-    this.model.User.find({}, (err, users) => {
-      if (err) throw err;
-      if (users) {
-        return res.json({
-          status: true,
-          data: users.map((user) => new UserTransform().transform(user._doc)),
-        });
-      }
-      return res.json("No user found");
-    });
+const getUsers = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ["name", "role"]);
+  const options = pick(req.query, ["sortBy", "limit", "page"]);
+  const result = await userService.queryUsers(filter, options);
+  res.send(result);
+});
+
+const getUser = catchAsync(async (req, res) => {
+  const user = await userService.getUserById(req.params.userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
+  res.send(user);
+});
 
-  get(req, res) {
-    const { id } = req.params;
-    if (!id) {
-      return res.json({
-        status: false,
-        message: "please send user id",
-      });
-    }
-    this.model.User.findOne({ _id: id }, (err, user) => {
-      if (err) throw err;
+const updateUser = catchAsync(async (req, res) => {
+  const user = await userService.updateUserById(req.params.userId, req.body);
+  res.send(user);
+});
 
-      if (user) {
-        return res.json({
-          status: true,
-          data: new UserTransform().transform(user),
-        });
-      }
-      return res.json("No user found");
-    });
-  }
+const deleteUser = catchAsync(async (req, res) => {
+  await userService.deleteUserById(req.params.userId);
+  res.status(httpStatus.NO_CONTENT).send();
+});
 
-  getUserById = async (id) => {
-    return this.model.User.findById(id);
-  };
-
-  put = async (req, res) => {
-    const { id } = req.params;
-
-    if (!id) {
-      res.status(422).json({
-        message: "No user ID provided",
-        status: false,
-      });
-    }
-
-    const user = await this.getUserById(id);
-
-    // TODO: Implement email\... validation
-
-    Object.assign(user, req.body);
-
-    await user.save();
-    return res.json({ status: true, data: new UserTransform().transform(user) });
-  };
-})();
+module.exports = {
+  createUser,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+};

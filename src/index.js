@@ -1,21 +1,38 @@
-const app = require("express")();
-const bodyParser = require("body-parser");
+const app = require("./app");
+const config = require("./config/config");
+const logger = require("./config/logger");
 const mongoose = require("mongoose");
-const expressValidator = require("express-validator");
-global.config = require("./config");
 
-const router = require("./routes");
+let server;
+mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
+  logger.info("Connected to MongoDB");
+  server = app.listen(config.port, () => {
+    logger.info(`Listening to port ${config.port}`);
+  });
+});
 
-// Connect to DB
-mongoose.connect(config.db, { useMongoClient: true });
-mongoose.Promise = global.Promise;
+const exitHandler = () => {
+  if (server) {
+    server.close(() => {
+      logger.info("Server closed");
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+};
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({ type: "application/json" }));
-app.use(expressValidator());
+const unexpectedErrorHandler = (error) => {
+  logger.error(error);
+  exitHandler();
+};
 
-app.use("/api", router);
+process.on("uncaughtException", unexpectedErrorHandler);
+process.on("unhandledRejection", unexpectedErrorHandler);
 
-app.listen(config.port, () => {
-  console.log(`Server running at Port ${config.port}`);
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM received");
+  if (server) {
+    server.close();
+  }
 });

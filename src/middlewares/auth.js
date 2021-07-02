@@ -1,37 +1,42 @@
-const jwt = require("jsonwebtoken");
-const User = require(`${config.path.model}/user`);
+const passport = require("passport");
+const httpStatus = require("http-status");
+const ApiError = require("../utils/ApiError");
+const { roleRights } = require("../config/roles");
 
-module.exports = (req, res, next) => {
-  let token = req.headers["authorization"].slice(7);
+const verifyCallback =
+  (req, resolve, reject, requiredRights) => async (err, user, info) => {
+    if (err || info || !user) {
+      return reject(
+        new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate")
+      );
+    }
+    req.user = user;
 
-  if (token) {
-    return jwt.verify(token, config.secret, (err, decode) => {
-      if (err) {
-        return res.json({
-          success: false,
-          data: "Failed to authenticate token.",
-        });
+    if (requiredRights.length) {
+      const userRights = roleRights.get(user.role);
+      const hasRequiredRights = requiredRights.every((requiredRight) =>
+        userRights.includes(requiredRight)
+      );
+      if (!hasRequiredRights && req.params.userId !== user.id) {
+        return reject(new ApiError(httpStatus.FORBIDDEN, "Forbidden"));
       }
+    }
 
-      User.findById(decode.user_id, (err, user) => {
-        if (err) throw err;
+    resolve();
+  };
 
-        if (user) {
-          user.token = token;
-          req.user = user;
-          next();
-        } else {
-          return res.json({
-            success: false,
-            data: "User not found",
-          });
-        }
-      });
-    });
-  }
+const auth =
+  (...requiredRights) =>
+  async (req, res, next) => {
+    return new Promise((resolve, reject) => {
+      passport.authenticate(
+        "jwt",
+        { session: false },
+        verifyCallback(req, resolve, reject, requiredRights)
+      )(req, res, next);
+    })
+      .then(() => next())
+      .catch((err) => next(err));
+  };
 
-  return res.status(403).json({
-    data: "No Token Provided",
-    success: false,
-  });
-};
+module.exports = auth;
