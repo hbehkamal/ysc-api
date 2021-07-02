@@ -6,7 +6,7 @@ const AuthController = require(`${config.path.controller}/v1/authController`);
 
 const auth = require('../../middlewares/auth');
 
-router.get("/", (req, res) => {
+router.get("/v1/", (req, res) => {
   res.json("Welcome to YSC api homepage");
 });
 

@@ -1,8 +1,4 @@
-// Model
-
-const User = require(`${config.path.model}/user`);
-
-module.exports = class Controller {
+module.exports = class Transform {
   constructor() {
     this.model = { User };
   }
@@ -29,5 +25,9 @@ module.exports = class Controller {
       req.sanitize(item).escape();
       req.sanitize(item).trim();
     });
+  }
+
+  transformCollection(items) {
+    return items.map(this.transform);
   }
 };

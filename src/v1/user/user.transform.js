@@ -1,4 +1,4 @@
-const Transform = require("../transform");
+const Transform = require("../../transforms/transform");
 const jwt = require("jsonwebtoken");
 
 module.exports = class UserTransform extends Transform {
