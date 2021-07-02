@@ -1,0 +1,6 @@
+version: '1'
+
+services:
+  node-app:
+    container_name: ysc-api-test
+    command: yarn test
